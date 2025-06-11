@@ -1,0 +1,3 @@
+﻿  саперконсоль.cpp
+C:\Users\polon\source\repos\саперконсоль\саперконсоль\саперконсоль.cpp(27,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  саперконсоль.vcxproj -> C:\Users\polon\source\repos\саперконсоль\x64\Debug\саперконсоль.exe
