@@ -13,9 +13,20 @@ int col[] = {-1, 0, 1, -1, 1, -1, 0, 1 };
 string player1, player2;
 
 int moves;
+int opened;
+int turn;
+
+void restart();
 
 void fill_board() {
 
+	for (int i = 0; i < 11; ++i)
+		for (int j = 0; j < 11; ++j) {
+			board[i][j] = 0;
+			used[i][j] = 0;
+		}
+
+	// межі
 	for (int i = 0; i < 11; ++i) {
 		board[0][i] = -1;
 		board[i][0] = -1;
@@ -69,17 +80,13 @@ pair <int, int>  next_move() {
 		bool valid = false;
 		int cur_row, cur_col;
 		while (!valid) {
-			int turn = -1;
 			if (moves % 2 == 0) {
 				turn = 1;
-				cout << "Player1, ";
-			}
-			else {
+				cout << player1 <<", ";
+			} else {
 				turn = 2;
-				cout << "Player2, ";
+				cout << player2 << ", ";
 			}
-		}
-
 
 		cout << "Enter your move (row[1-9] column[1-9]): ";
 		cin >> cur_row >> cur_col;
@@ -87,38 +94,37 @@ pair <int, int>  next_move() {
 		// задаємл обмеження, виводимо попередження
 		if (cur_row > 9 || cur_row < 1 || cur_col > 9 || cur_col < 1 || used[cur_row][cur_col]) {
 			cout << "Invalid move. Please, try again: ";
-		}
-		else {
+		} else {
 			valid = true;
 		}
-	}
+}
 	return { cur_row, cur_col };
 }
 
-	void recursion(int move_row, int move_col) {
-		for (int = 0; i < 8; ++i) {
-			if(board[move_row + row[i]][move_col + col[i]] > 0 && board[move_row + row[i]][move_col + col[i]] < 9 ){
-				used[board[move_row + row[i]][move_col + col[i]] = true;
-			} else if(board[move_row + row[i]][move_col + col[i]] == 0){
-				recursion(move_row + row[i], move_col + col[i]);
+void recursion(int move_row, int move_col) {
+	if (used[move_row][move_col]) return;
+
+	used[move_row][move_col] = true;
+	opened++;
+	if (board[move_row][move_col] != 0) return;
+
+	// перевіряємо сусідів
+	for (int i = 0; i < 8; ++i) {
+		int new_row = move_row + row[i];
+		int new_col = move_col + col[i];
+
+		// перевірка меж поля
+		if (new_row >= 1 && new_row <= 9 && new_col >= 1 && new_col <= 9) {
+			// викликаємо рекурсію (якщо клітинка не відкрита)
+			if (!used[new_row][new_col]) {
+				recursion(new_row, new_col);
+			}
+		}
 	}
 }
 
-	void game() {
-		pair <int, int> move = next_move();
-		int move_row = move.first;
-		int move_col = move.second;
-		if (board[move_row][move_col] == 9) {
-			cout << " Oops! ";
-			if (moves % 2 == 0) {
-				turn = 1;
-				cout << "player1";
-			}
-			else {
-				turn = 2;
-				cout << "player2";
-			}
-			cout << "Lose. Would you like to try again? (Y/N): ";
+			void go_on() {
+			cout << "Would you like to try again ? (Y / N) : ";
 			char re;
 			cin >> re;
 			if (re == 'Y') {
@@ -130,10 +136,10 @@ pair <int, int>  next_move() {
 			else {
 				bool good = false;
 				while (!good) {
-					cout << "You have entered wrong value. Answer again. Would you like to try again? (Y/N): "
+					cout << "You have entered wrong value. Answer again. Would you like to try again? (Y/N): ";
 						cin >> re;
 					if (re == 'Y' || re == 'N') {
-						good == true;
+						good = true;
 					}
 				}
 				if (re == 'Y') {
@@ -144,18 +150,44 @@ pair <int, int>  next_move() {
 				}
 			}
 		}
+
+
+	void game() {
+		pair <int, int> move = next_move();
+		int move_row = move.first;
+		int move_col = move.second;
+		if (board[move_row][move_col] == 9) {
+			cout << " Oops! ";
+			if (moves % 2 == 0) {
+				turn = 1;
+				cout << player1;
+			}
+			else {
+				turn = 2;
+				cout << player2;
+			}
+			cout << " Lose. ";
+			go_on();
+		}
+	
 		else if (board[move_row][move_col] == 0) {
 			used[move_row][move_col] = true;
+			opened++;
 			recursion(move_row, move_col);
 		} else {
 			used[move_row][move_col] = true;
 	}
 		moves++;
+		print_board();
+		if (opened == 9 * 9 - 10) {
+			cout << "Congrats! It's draw!\n";
+			go_on();
+		}
 		game();
 }
-
+	
 	void restart() {
-		cout << "---------------------------------------------\nNew game:\n";
+		cout << "---------------------------------------------\nNew game: \n";
 
 		enter_players_names();
 
